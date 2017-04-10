@@ -22,12 +22,13 @@ class Trie
     * Add value to the trie
     *
     * @param string $string
+     * @param mixed $value
     */
-    public function add($string)
+    public function add($string, $value = true)
     {
 
         if ($string === "") {
-            $this->value = true;
+            $this->value = $value;
             return;
         }
         foreach ($this->trie as $prefix => $trie) {
@@ -40,19 +41,19 @@ class Trie
             for ($i = 0; $i<$prefixLength; $i++) {
                 //Split
                 if ($i >= $headLength) {
-                $equalTrie = new Trie(true);
+                $equalTrie = new Trie($value);
                 $this->trie[$equalPrefix] = $equalTrie;
                 $equalTrie->trie[substr($prefix,$i)] = $trie;
                 unset($this->trie[$prefix]);
                 return;
             } elseif ($prefix[$i] != $head[$i]) {
                 if ($i > 0) {
-                $equalTrie = new Trie();
-                $this->trie[$equalPrefix] = $equalTrie;
-                $equalTrie->trie[substr($prefix,$i)] = $trie;
-                $equalTrie->trie[substr($string,$i)] = new Trie();
-                unset($this->trie[$prefix]);
-                return;
+                    $equalTrie = new Trie(null);
+                    $this->trie[$equalPrefix] = $equalTrie;
+                    $equalTrie->trie[substr($prefix,$i)] = $trie;
+                    $equalTrie->trie[substr($string,$i)] = new Trie($value);
+                    unset($this->trie[$prefix]);
+                    return;
             }
             $equals = false;
             break;
@@ -60,11 +61,11 @@ class Trie
             $equalPrefix .= $head[$i];
             }
             if ($equals) {
-            $trie->add(substr($string,$prefixLength));
+            $trie->add(substr($string,$prefixLength), $value);
             return;
             }
         }
-        $this->trie[$string] = new Trie();
+        $this->trie[$string] = new Trie($value);
     }
 
     /**
@@ -80,7 +81,6 @@ class Trie
             return $this->value;
         }
         foreach ($this->trie as $prefix => $trie) {
-            $prefix = (string)$prefix;
             $prefixLength = strlen($prefix);
             $head = substr($string,0,$prefixLength);
             if ($head === $prefix) {
@@ -90,11 +90,4 @@ class Trie
         return null;
     }
 
-    public static function __set_state($state)
-    {
-        $t = new self;
-        $t->trie = $state['trie'];
-        $t->value = $state['value'];
-        return $t;
-    }
 }
