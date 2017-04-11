@@ -67,7 +67,7 @@ class TokenDocMappingModel
      */
     public static function ingestToRedis($word, $docIdWithScore)
     {
-        \Redis::connection()->sadd(self::KEY_PREFIX . ':' . $word, $docIdWithScore);
+        \Redis::connection()->sadd(self::KEY_PREFIX . $word, $docIdWithScore);
     }
 
     /**
@@ -79,5 +79,13 @@ class TokenDocMappingModel
         $bash = 'redis-cli --scan --pattern "' . self::KEY_PREFIX . '*" | xargs -L 1000 redis-cli DEL';
 
         return @shell_exec($bash);
+    }
+
+    public static function getWords()
+    {
+        return array_map(function($str) {
+                return substr($str, strlen(self::KEY_PREFIX));
+            },\Redis::connection()->keys(self::KEY_PREFIX . '*')
+        );
     }
 }

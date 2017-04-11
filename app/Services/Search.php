@@ -81,6 +81,7 @@ class Search
         $ids = [];
         if (!$myHeap->isEmpty())
             // to get top k docs with id
+            $k = min($k , $myHeap->count());
             for($i = 0; $i < $k; $i++) {
                 $doc = $myHeap->extract();
                 $res[$k - $i - 1] = $doc;

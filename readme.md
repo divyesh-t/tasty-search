@@ -1,51 +1,147 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+### Getting started (developer)
 
-## About Laravel
+You will need PHPStorm (or other IDE), php, mysql, git and beanstalkd. You will not need a local web-server (php has one built in).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+1. Download and install [PHPStorm EAP](https://confluence.jetbrains.com/display/PhpStorm/PhpStorm+Early+Access+Program)
+2. Create a SSH key-pair and add the pub-key to your account on GitHub (if you've not already done so)
+    [GitHub SSH Settings](https://github.com/settings/ssh).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+    On OSX, this is:
+    `
+    ssh-keygen
+    cat ~/.ssh/id_rsa.pub | pbcopy
+    `
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications. A superb combination of simplicity, elegance, and innovation give you tools you need to build any application with which you are tasked.
+    An SSH public key will have been created & copied to your clipboard.
 
-## Learning Laravel
+3. Create a GitHub Personal access token <br>
+   https://github.com/settings/tokens <br>
+   The token should have access to private repos
 
-Laravel has the most extensive and thorough documentation and video tutorial library of any modern web application framework. The [Laravel documentation](https://laravel.com/docs) is thorough, complete, and makes it a breeze to get started learning the framework.
+#### OSX
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 900 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+1. Install homebrew (iff not already done)
+    ```
+    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    ```
 
-## Laravel Sponsors
+1. Install php, git, mysql, redis & composer; start services; install dependencies
+     ```
+     brew install php71 git mysql composer composer-completion php71-intl redis
+     brew services start mysql      #version 5.8 or better
+     brew services start redis
+     git clone git@github.com:divyesh-t/tasty-search
+     composer config github-oauth.github.com <your personal access token>
+     cp .env.example .env
+     composer install               #install dependencies
+     mysql -uroot < database/SQL/tables.sql
+     php artisan migrate
+     ```
 
-We would like to extend our thanks to the following sponsors for helping fund on-going Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](http://patreon.com/taylorotwell):
+2. Setup XDEBUG
 
-- **[Vehikl](http://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- **[Styde](https://styde.net)**
-- **[Codecourse](https://www.codecourse.com)**
-- [Fragrantica](https://www.fragrantica.com)
+    Edit ```/usr/local/etc/php/7.1/conf.d/ext-xdebug.ini```
 
-## Contributing
+     ```
+     [xdebug]
+     zend_extension="/usr/local/opt/php71-xdebug/xdebug.so"
+     xdebug.remote_port=9001    #Port 9000 does not work for some reason
+     xdebug.remote_enable=yes
+     ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
 
-## Security Vulnerabilities
+#### Ubuntu
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+* Install php7 components.
 
-## License
+```
+    sudo LC_ALL=en_US.UTF-8 add-apt-repository ppa:ondrej/php
+    sudo apt-get update
+    sudo apt-get install php7.1-fpm php7.1-mysql php7.1-curl php7.1-mcrypt php7.1-mbstring php7.1-xml php-xdebug php7.1-bcmath
+    php -v #should reflect version 7
+    curl -sS https://getcomposer.org/installer | php
+    sudo mv composer.phar /usr/local/bin/composer
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
+* Install whois
+
+```
+    sudo apt-get install whois
+```
+> edit or add /etc/whois.conf file by copying it from https://gist.github.com/thde/3890aa48e03a2b551374
+
+* Install MySQL 5.7 & Redis
+
+```
+    wget https://dev.mysql.com/get/mysql-apt-config_0.6.0-1_all.deb
+    dpkg -i mysql-apt-config_0.6.0-1_all.deb #select MySQL 5.7 if not already selected and apply.
+    mysqladmin -u root -p version # MySQL Server Version should reflect 5.7.11
+    sudo apt-get install build-essential tcl
+    cd /tmp
+    curl -O http://download.redis.io/redis-stable.tar.gz
+    tar xzvf redis-stable.tar.gz
+    cd redis-stable
+    make
+    make test
+    sudo make install
+    # follow instrucion from https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-redis-on-ubuntu-16-04 to configure redis server
+```
+
+* Project Workspace setup
+
+```
+    git clone git@github.com:divyesh-t/tasty-search.git
+    composer config github-oauth.github.com <your personal access token>
+    cd tasty-search
+    cp .env.example .env
+    composer install    #install dependencies
+    mysql -p -u root < database/SQL/tables.sql
+    php artisan migrate
+ ```
+
+> edit .env to up enter DB_HOST and REDIS details to your local mysql and redis server respectively.
+      create a database, user and password and save details in .env.
+
+
+## Ingest data from dataset file
+
+```
+    php artisan ingest:docs [path/to/your/dataset] [count of docs to ingest?]
+    #e.g. php artisan ingest:docs /path/to/dataset 100000
+```
+
+## start server
+
+```
+    php artisan serve --host=0.0.0.0
+```
+
+* Open http://localhost:8000 in browser
+
+
+## Load Testing
+
+1. Download and install
+
+```
+    wget http://download.joedog.org/siege/siege-latest.tar.gz
+    tar -zxvf siege-latest.tar.gz
+    cd siege-*/
+    ./configure
+    make
+    sudo make install
+```
+
+2. Generate Test files
+
+```
+    php artisan generate:testFiles [count of test cases?] #if count not provided, default is 1000
+    #e.g. php artisan generate:testFiles
+```
+
+3. Run tests
+```
+    siege -if {path/to}/tasty-search/public/tests.txt -c [cuncurrent user] -t[time to Rum(M|S|H)]
+    #e.g. siege -if public/tests.text -c 10 -t10M
+```
